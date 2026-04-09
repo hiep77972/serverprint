@@ -20,15 +20,32 @@ let clients = [];
 // 🔥 WebSocket connect
 wss.on("connection", (ws) => {
     console.log("Printer connected");
-    if (msg.toString() === "ping") {
-            // 👉 chỉ giữ kết nối, không làm gì
-            return;
-        }
+    
     clients.push(ws);
+
+    ws.on("message", (msg) => {
+        try {
+            const text = msg.toString();
+
+            // 🔥 heartbeat
+            if (text === "ping") {
+                // có thể reply lại nếu muốn
+                // ws.send("pong");
+                return;
+            }
+
+            console.log("Client message:", text);
+        } catch (e) {
+            console.log("Message error:", e);
+        }
+    });
 
     ws.on("close", () => {
         clients = clients.filter(c => c !== ws);
         console.log("Printer disconnected");
+    });
+    ws.on("error", (err) => {
+        console.log("WS error:", err.message);
     });
 });
 
