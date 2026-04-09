@@ -1,8 +1,17 @@
 const express = require("express");
 const WebSocket = require("ws");
+const cors = require("cors");
 
 const app = express();
+
+app.use(cors({
+  origin: "https://hiep77972.github.io",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+
 app.use(express.json());
+
 
 const wss = new WebSocket.Server({ port: 3001 });
 
