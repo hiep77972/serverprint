@@ -20,6 +20,10 @@ let clients = [];
 // 🔥 WebSocket connect
 wss.on("connection", (ws) => {
     console.log("Printer connected");
+    if (msg.toString() === "ping") {
+            // 👉 chỉ giữ kết nối, không làm gì
+            return;
+        }
     clients.push(ws);
 
     ws.on("close", () => {
