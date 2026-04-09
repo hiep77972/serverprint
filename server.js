@@ -1,8 +1,12 @@
 const express = require("express");
 const WebSocket = require("ws");
 const cors = require("cors");
+const http = require("http");
 
 const app = express();
+
+// ⚠️ dùng PORT của Render
+const PORT = process.env.PORT || 3000;
 
 app.use(cors({
   origin: "https://hiep77972.github.io",
@@ -12,44 +16,39 @@ app.use(cors({
 
 app.use(express.json());
 
+// 🔥 tạo HTTP server từ express
+const server = http.createServer(app);
 
-const wss = new WebSocket.Server({ port: 3001 });
+// 🔥 gắn WebSocket vào server này
+const wss = new WebSocket.Server({ server });
 
 let clients = [];
 
-// 🔥 WebSocket connect
+// WebSocket connect
 wss.on("connection", (ws) => {
     console.log("Printer connected");
-    
+
     clients.push(ws);
 
     ws.on("message", (msg) => {
-        try {
-            const text = msg.toString();
+        const text = msg.toString();
 
-            // 🔥 heartbeat
-            if (text === "ping") {
-                // có thể reply lại nếu muốn
-                // ws.send("pong");
-                return;
-            }
+        if (text === "ping") return;
 
-            console.log("Client message:", text);
-        } catch (e) {
-            console.log("Message error:", e);
-        }
+        console.log("Client message:", text);
     });
 
     ws.on("close", () => {
         clients = clients.filter(c => c !== ws);
         console.log("Printer disconnected");
     });
+
     ws.on("error", (err) => {
         console.log("WS error:", err.message);
     });
 });
 
-// 🔥 API để web gọi
+// API
 app.post("/print", (req, res) => {
     const data = JSON.stringify(req.body);
 
@@ -62,6 +61,7 @@ app.post("/print", (req, res) => {
     res.send("Sent to printers");
 });
 
-app.listen(3000, () => {
-    console.log("API running at http://localhost:3000");
+// 🔥 dùng server.listen thay vì app.listen
+server.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
