@@ -5,7 +5,7 @@ const http = require("http");
 
 const app = express();
 
-// ⚠️ dùng PORT của Render
+
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
@@ -16,15 +16,14 @@ app.use(cors({
 
 app.use(express.json());
 
-// 🔥 tạo HTTP server từ express
+
 const server = http.createServer(app);
 
-// 🔥 gắn WebSocket vào server này
+
 const wss = new WebSocket.Server({ server });
 
 let clients = [];
 
-// WebSocket connect
 wss.on("connection", (ws) => {
     console.log("Printer connected");
 
@@ -48,7 +47,7 @@ wss.on("connection", (ws) => {
     });
 });
 
-// API
+
 app.post("/print", (req, res) => {
     const data = JSON.stringify(req.body);
 
@@ -61,7 +60,6 @@ app.post("/print", (req, res) => {
     res.send("Sent to printers");
 });
 
-// 🔥 dùng server.listen thay vì app.listen
 server.listen(PORT, () => {
     console.log("Server running on port " + PORT);
 });
